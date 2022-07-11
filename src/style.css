@@ -1,0 +1,11 @@
+#field{
+  position: absolute;
+}
+
+.blank{
+  background-color: green;
+}
+
+.snake{
+  background-color: aqua;
+}
