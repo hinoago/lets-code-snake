@@ -1,23 +1,12 @@
-import { View } from "../View";
-import { Position } from "./Position";
+import { Area } from "./Area"
 
 class Field{
-    private cols: number;
-    private rows: number;
-    private field: Array<Position> = [];
+    private field: Array<Area> = [];
 
-    constructor(cols: number, rows: number){
-        this.cols = cols;
-        this.rows = rows;
-        for(let i = 0; i < this.cols; i++){
-            for(let j = 0; j < this.rows; j++){
-                if(i == 0 && j == 0){
-                    this.field.push(new Position(j, i, "head"));
-                    View.createArea(j, i, "snake");
-                    continue;
-                }
-                this.field.push(new Position(j, i, "blank"));
-                View.createArea(j, i, "blank");
+    constructor(cols: number, rows:number){
+        for(let y = 0; y < rows; y++){
+            for(let x = 0; x < cols; x++){
+                this.field.push(new Area(x, y));
             }
         }
     }
@@ -27,4 +16,4 @@ class Field{
     }
 }
 
-export {Field}
+export{Field}
