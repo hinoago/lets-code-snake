@@ -22,6 +22,15 @@ class View{
         }
     }
 
+    static renderSnake(){
+        for(let i = 2; i >= 0; i--){
+            const area = document.getElementById(`x:0y:${i}`);
+            if(area){
+                area.className = 'snake';
+            }
+        }
+    }
+
     static updateField(field: Field){
         const f = field.getField();
         f.forEach(area =>{
