@@ -1,4 +1,3 @@
-import { Area } from "../model/Area";
 import { Field } from "../model/Field"
 import { Snake } from "../model/Snake";
 import { View } from "../view/View";
@@ -27,16 +26,15 @@ class GameController{
     }
 
     //TODO: Verify if the next snake's movement is inside the field
-    snakeMove(direction: 'down'){
-        if(direction == 'down'){
-            this.snake.moveDown();
-        }
+    snakeMove(direction: 'up' | 'down' | 'left' | 'right'){
+        this.snake.move(direction);
         this.updateField();
     }
 
     renderField(){
         const fieldLength = this.getField().length/10;
         View.renderField(fieldLength, fieldLength);
+        View.renderSnake();
         return this.field;
     }
 
