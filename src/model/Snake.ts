@@ -9,7 +9,7 @@ class Snake{
         }
     }
 
-    moveDown(){
+    move(direction: 'up' | 'down' | 'left' | 'right'){
         let currentX;
         let currentY;
         let newX;
@@ -19,7 +19,18 @@ class Snake{
             if(i == 0){
                 currentX = this.snake[i].getX();
                 currentY = this.snake[i].getY();
-                this.snake[i].setY(currentY+1);
+                if(direction == 'up'){
+                    this.snake[i].setY(currentY-1);
+                }
+                if(direction == 'down'){
+                    this.snake[i].setY(currentY+1);
+                }
+                if(direction == 'left'){
+                    this.snake[i].setX(currentX-1);
+                }
+                if(direction == 'right'){
+                    this.snake[i].setX(currentX+1);
+                }
             }else{
                 newX = this.snake[i].getX();
                 newY = this.snake[i].getY();
