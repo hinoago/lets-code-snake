@@ -47,6 +47,10 @@ class Snake{
     getSnake(){
         return this.snake;
     }
+
+    eat(x: number, y: number){
+        this.getSnake().unshift(new SnakeSlice(x, y));
+    }
 }
 
 export{Snake}

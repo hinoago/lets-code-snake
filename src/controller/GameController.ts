@@ -47,6 +47,27 @@ class GameController{
 
     //TODO: Verify if the next snake's movement is inside the field
     snakeMove(direction: 'up' | 'down' | 'left' | 'right'): void{
+        
+        //Increasing snake size on eating food
+        let area;
+        const head = this.snake.getSnake()[0];
+        if(direction == 'down'){
+            area = this.getField().find(area => area.getX() == head.getX() && area.getY() == head.getY()+1);
+        }else if(direction == 'up'){
+            area = this.getField().find(area => area.getX() == head.getX() && area.getY() == head.getY()-1);
+        }else if(direction == 'right'){
+            area = this.getField().find(area => area.getX() == head.getX()+1 && area.getY() == head.getY());
+        }else{
+            area = this.getField().find(area => area.getX() == head.getX()-1 && area.getY() == head.getY());
+        }
+        
+        if(area && area.getContent() == 'food'){
+            this.snake.eat(area.getX(), area.getY());
+            area.setContent('snake');
+            this.updateField();
+            return;
+        }
+
         this.snake.move(direction);
         this.updateField();
     }
@@ -74,7 +95,7 @@ class GameController{
     updateField(): void{
         const snakePositionOnField = this.getSnakeOnField();
 
-        //Removing snake from area
+        //Removing snake from area(tail)
         const snakeOnField = this.getField().filter(area => area.getContent() == 'snake');
         const snakeToRemove = snakeOnField.find(area =>{
             const a = snakePositionOnField.find(a => a.getX() == area.getX() && a.getY() == area.getY());
@@ -96,6 +117,7 @@ class GameController{
                 a.setContent('snake');
             }
         });
+        
 
         View.updateField(this.field);
     }
