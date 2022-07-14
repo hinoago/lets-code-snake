@@ -31,6 +31,15 @@ class GameController{
         this.updateField();
     }
 
+    createFood(){
+        const field = this.getField();
+        const emptyAreas = field.filter(area => area.getContent() == 'blank');
+        const emptyArea = emptyAreas[Math.floor(Math.random()*emptyAreas.length)];
+        emptyArea.setContent('food');
+        this.updateField();
+        console.log(emptyArea);
+    }
+
     renderField(){
         const fieldLength = this.getField().length/10;
         View.renderField(fieldLength, fieldLength);
