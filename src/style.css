@@ -9,3 +9,7 @@
 .snake{
   background-color: aqua;
 }
+
+.food{
+  background-color: red;
+}
