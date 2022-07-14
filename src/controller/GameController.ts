@@ -3,46 +3,56 @@ import { Field } from "../model/Field"
 import { Snake } from "../model/Snake";
 import { View } from "../view/View";
 
+//TODO: need some bugfixes
 class GameController{
+    private TIME_IN_MILISSECONDS = 3000;
     private field: Field = new Field(10, 10);
     private snake = new Snake();
+    private snakeDirection: 'up' | 'down' | 'left' |'right' = 'down';
+    private insertFoodTimer: number = 0;
+    private stopMovementTimer: number = 0;
+    private foodsOnField: Array<Area> = [];
+    private move = (event: KeyboardEvent) =>{
+        if(event.key == "ArrowUp"){
+            this.snakeDirection = 'up';
+        }
+        if(event.key == "ArrowDown"){
+            this.snakeDirection = 'down';
+        }
+        if(event.key == "ArrowLeft"){
+            this.snakeDirection = 'left';
+        }
+        if(event.key == "ArrowRight"){
+            this.snakeDirection = 'right';
+        }
+    }
 
     start(): void{
         this.renderField();
-        this.insertFood(1000);
+        this.foodManage();
         this.listenSnakeMovement();
-    }
-
-    getField(): Array<Area>{
-        return this.field.getField();
-    }
-
-    getSnakeOnField(): Array<Area>{
-        return this.getField().filter(area =>{
-            const slice = this.snake.getSnake().find(pos => pos.getX() == area.getX() && pos.getY() == area.getY());
-            if(slice){
-                return true;
-            }else{
-                return false;
-            }
-        });
+        this.snakeAutoMove();
+        this.autoUpdate();
     }
 
     listenSnakeMovement(): void{
-        document.addEventListener("keydown", (event) =>{
-            if(event.key == "ArrowUp"){
-                this.snakeMove('up')
-            }
-            if(event.key == "ArrowDown"){
-                this.snakeMove('down');
-            }
-            if(event.key == "ArrowLeft"){
-                this.snakeMove('left');
-            }
-            if(event.key == "ArrowRight"){
-                this.snakeMove('right');
-            }
-        });
+        document.addEventListener("keydown", this.move);
+    }
+
+    stopSnakeMovementListener(): void{
+        document.removeEventListener("keydown", this.move);
+    }
+
+    stopSnakeAutoMove(){
+        if(this.stopMovementTimer != undefined){
+            clearInterval(this.stopMovementTimer);
+        }
+    }
+
+    snakeAutoMove(){
+        this.stopMovementTimer = setInterval(() =>{
+            this.snakeMove(this.snakeDirection);
+        },100);
     }
 
     //TODO: Verify if the next snake's movement is inside the field
@@ -60,7 +70,7 @@ class GameController{
         }else{
             area = this.getField().find(area => area.getX() == head.getX()-1 && area.getY() == head.getY());
         }
-        
+
         if(area && area.getContent() == 'food'){
             this.snake.eat(area.getX(), area.getY());
             area.setContent('snake');
@@ -68,28 +78,60 @@ class GameController{
             return;
         }
 
+        //Handling game over possibilities
+        if(area == undefined || area.getContent() == 'snake'){
+            try{
+                this.gameOver();
+            }catch(err: any){
+                alert(err.message);
+                return;
+            }
+        }
+
         this.snake.move(direction);
         this.updateField();
     }
 
-    insertFood(time: number): void{
-        setInterval(() =>{
-            this.renderFood();
-        }, time);
+    foodManage(){
+        this.insertFood();
     }
 
-    renderFood(): void{
-        const field = this.getField();
-        const emptyAreas = field.filter(area => area.getContent() == 'blank');
-        const emptyArea = emptyAreas[Math.floor(Math.random()*emptyAreas.length)];
-        emptyArea.setContent('food');
-        this.updateField();
+    insertFood(): void{
+        this.insertFoodTimer = setInterval(() =>{
+            const field = this.getField();
+            const emptyAreas = field.filter(area => area.getContent() == 'blank');
+            if(emptyAreas.length > 0){
+                const emptyArea = emptyAreas[Math.floor(Math.random()*emptyAreas.length)];
+                this.foodsOnField.push(emptyArea);
+                emptyArea.setContent('food');
+                this.updateField();
+            }
+            setTimeout(() =>{
+                const food = this.foodsOnField.at(0);
+                if(food){
+                    food.setContent('blank');
+                    this.foodsOnField.shift();
+                }
+            }, this.TIME_IN_MILISSECONDS*.9)
+        }, this.TIME_IN_MILISSECONDS);
+    }
+
+    stopFoodInsert(){
+        if(this.insertFoodTimer != undefined){
+            clearInterval(this.insertFoodTimer);
+        }
     }
 
     renderField(): void{
         const fieldLength = this.getField().length/10;
         View.renderField(fieldLength, fieldLength);
         View.renderSnake();
+    }
+
+    autoUpdate(){
+        setInterval(() =>{
+            this.updateField();
+        }, 100);
     }
 
     updateField(): void{
@@ -120,6 +162,29 @@ class GameController{
         
 
         View.updateField(this.field);
+    }
+
+    gameOver(): never{
+        this.stopFoodInsert();
+        this.stopSnakeMovementListener();
+        this.stopSnakeAutoMove();
+
+        throw new Error("Fim De Jogo");
+    }
+
+    getField(): Array<Area>{
+        return this.field.getField();
+    }
+
+    getSnakeOnField(): Array<Area>{
+        return this.getField().filter(area =>{
+            const slice = this.snake.getSnake().find(pos => pos.getX() == area.getX() && pos.getY() == area.getY());
+            if(slice){
+                return true;
+            }else{
+                return false;
+            }
+        });
     }
 }
 
